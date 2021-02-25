@@ -1,57 +1,67 @@
-# sfm (Setting Files Manager)
+# confshelf
 
-sfm is a simple tool for manage setting files (Can be used for dotfiles management).
+confshelf is a simple tool for manage setting files (Can use as dotfiles manager).
+
+Requires git
 
 ## Commands
 
-### `sfm repo init` 
+### `confshelf setup` 
 
-Init git repository in `~/.config/sfm/repo/`
+Setup confshelf in interactive interface.  
+You can choose whether initialize or clone repository.
 
-### `sfm repo clone <source repo>`
+### `confshelf pull`
 
-Clones repository from remote/local to `~/.config/sfm/repo/`
+Pull from remote repository
 
-### `sfm repo pull`
+### `confshelf push`
 
-### `sfm repo push`
+Push to remote repository
 
-### `sfm commit [message]`
+### `confshelf commit [message]`
 
-### `sfm manage <source path> <dest path>`
+Commit files in interactive interface.  
+You can select files to stage.
 
-Moves `<source path>` to `<dest path>` and create symlink in `<source path>` that point to `<dest path>`
+### `confshelf manage <source path> <dest path>`
 
-`<dest path>` must be relative path or absolute path that starts with `~/.config/sfm/repo/`
+Move `<source path>` to `<dest path>` and create symlink in `<source path>` that point to `<dest path>`
 
-### `sfm unmanage <symlink path>`
+`<dest path>` must be relative path or absolute path that starts with `~/.confshelf/repo/`
 
-Copies a file that symlink pointed to into `<symlink path>`
+### `confshelf unmanage <file path>`
 
-### `sfm place <source path> <symlink path>
+`<file path>` must be relative or starts with `~/.confshelf/repo/`.  
 
-Creates a symlink in `<symlink path>` that point to `<source path>`
+This command will replace known symlinks with `<file path>` and remove `<file path>`.
 
-`<source path` must be relative or starts with `~/.config/sfm/repo/`
+### `confshelf link <source path> <symlink path>
 
-### `sfm ls`
+Create a symlink in `<symlink path>` that point to `<source path>`
 
-List managed files and known symlinks
+`<source path` must be relative or starts with `~/.confshelf/repo/`
+
+### `confshelf status`
+
+Print git status, known symlinks for each files that managed by confshelf.
 
 ## Configuration
 
-Configuration file is placed in `$XDG_CONFIG_HOME/sfm/config.toml`
+Configuration file is `~/.confshelf/config.toml`
 
 ```toml
-# Do not modify
+# Configuration format version.
+# DO NOT MODIFY
 version = "1"
+
 # Set whether push on commit
 push_on_commit = false
 ```
 
 ## Files
 
-- `$XDG_CONFIG_HOME/sfm/repo/` Git repo
-- `$XDG_CONFIG_HOME/sfm/config.toml` Config file
-- `$XDG_DATA_HOME/sfm/known_links.toml` A file stores known symlink files
+- `~/.confshelf/repo/` Git repo
+- `~/.confshelf/config.toml` Config file
+- `~/.confshelf/known_links.toml` A file stores known symlink files
 
