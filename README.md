@@ -9,6 +9,7 @@ Tested on FreeBSD 12.2-RELEASE-p3
 
 - Read configuration file
 - Handle absolute path
+- Set repository path
 
 ## Commands
 
@@ -59,10 +60,10 @@ Configuration file is `~/.confshelf/config.toml`
 ```toml
 # Configuration format version.
 # DO NOT MODIFY
-version = "1"
+config_version = "1"
 
-# Set whether push on commit
-push_on_commit = false
+# Repository path. The path doesn't have to be a git repository.
+repository_path = "/home/foo/.confshelf/repo"
 ```
 
 ## Files
