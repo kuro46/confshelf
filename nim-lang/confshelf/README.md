@@ -2,14 +2,7 @@
 
 confshelf is a simple tool for manage setting files (Can use as dotfiles manager).
 
-Requires libgit2  
 Tested on FreeBSD 12.2-RELEASE-p3
-
-## ToDo
-
-- Read configuration file
-- Handle absolute path
-- Set repository path
 
 ## Commands
 
