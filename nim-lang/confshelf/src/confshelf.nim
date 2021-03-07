@@ -136,6 +136,8 @@ proc status(config: ConfigRef) =
 proc main() =
   # Init logger
   let consoleLogger = newConsoleLogger(levelThreshold = lvlAll)
+  when defined(release):
+    consoleLogger.levelThreshold = lvlInfo
   addHandler(consoleLogger)
   # Parse args
   let args = docopt(doc, version = "confshelf " & nimblefile.version)
