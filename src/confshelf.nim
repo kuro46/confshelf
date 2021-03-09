@@ -6,7 +6,7 @@ Usage:
   confshelf unmanage <conf-id>
   confshelf link <conf-id> <dest>
   confshelf unlink <symlink>
-  confshelf status
+  confshelf (s | status)
   confshelf (-h | --help)
   confshelf (-v | --version)
 
@@ -160,7 +160,7 @@ proc main() =
     link(config, confId, dest)
   if args["unlink"]:
     echo "unlink"
-  if args["status"]:
+  if args["status"] or args["s"]:
     status(config)
 
 main()
