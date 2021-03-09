@@ -89,7 +89,7 @@ proc initConfigIfNeeded() =
 proc insertKnownLink(symlinkPath: string, confId: string) =
   let file = open(knownLinksPath(), fmAppend)
   defer: close(file)
-  file.write("\"" & symlinkPath & "\" = \"" & confId & "\"\n")
+  file.write("\"" & symlinkPath.absolutePath() & "\" = \"" & confId & "\"\n")
 
 proc manage(config: ConfigRef, source: string, confId: string) =
   debug("Managing source: " & source & " conf-id: " & confId)
