@@ -10,6 +10,6 @@ bin           = @["confshelf"]
 
 # Dependencies
 
-requires "nim >= 1.4.4"
+requires "nim >= 1.4.0"
 requires "docopt >= 0.6.0"
 requires "parsetoml >= 0.5.0"
