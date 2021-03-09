@@ -121,9 +121,12 @@ proc link(config: ConfigRef, confId: string, dest: string) =
   insertKnownLink(dest, confId)
   echo "Success!"
 
+proc walkFilesUnderRepo(config: ConfigRef, pattern: string): seq[string] =
+  toSeq(walkFiles(config.repository_path / pattern))
+
 proc status(config: ConfigRef) =
   let knownLinks = readKnownLinks()
-  for file in walkFiles(config.repository_path / "*"):
+  for file in walkFilesUnderRepo(config, "*") & walkFilesUnderRepo(config, ".*"):
     let confId = splitPath(file).tail
     echo confId & ":"
     if knownLinks.hasKey(confId):
