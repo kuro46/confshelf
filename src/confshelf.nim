@@ -2,17 +2,18 @@ let doc = """
 The configuration file manager
 
 Usage:
-  confshelf manage <source> <conf-id>
-  confshelf unmanage <conf-id>
-  confshelf link <conf-id> <dest>
-  confshelf unlink <symlink>
-  confshelf (s | status)
+  confshelf [--debug] manage <source> <conf-id>
+  confshelf [--debug] unmanage <conf-id>
+  confshelf [--debug] link <conf-id> <dest>
+  confshelf [--debug] unlink <symlink>
+  confshelf [--debug] (s | status)
   confshelf (-h | --help)
   confshelf (-v | --version)
 
 Options:
   -h --help     Show this screen.
-  -v --version     Show version.
+  -v --version  Show version.
+  --debug       Enable debug logging.
 """
 let initialConfig = """
 # Configuration format version.
@@ -144,8 +145,12 @@ proc main() =
   addHandler(consoleLogger)
   # Parse args
   let args = docopt(doc, version = "confshelf " & nimblefile.version)
+  # Enable debug logging if --debug is specified
+  if args["--debug"]:
+    consoleLogger.levelThreshold = lvlAll
+    debug("Debug logging enabled")
   # Config
-  debug("Initializing configuration if needed")
+  debug("Initializing configuration (if needed)")
   initConfigIfNeeded()
   debug("Reading configuration")
   let config = readConfig()
