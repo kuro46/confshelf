@@ -38,6 +38,7 @@ type
     configVersion: int
     repositoryPath: string
   ConfigRef = ref Config
+  KnownLinks = Table[string, seq[string]]
   ConfshelfError* = object of CatchableError
   ConfigError* = object of ConfshelfError
   ManageError* = object of ConfshelfError
@@ -66,14 +67,14 @@ proc readConfig(): ConfigRef =
     raise newException(ConfigError, "'repository_path' is not a directory!")
   return ConfigRef(configVersion: configVersion, repositoryPath: repositoryPath)
 
-proc readKnownLinks(): Table[string, seq[string]] =
+proc readKnownLinks(): KnownLinks =
   let knownLinksPath = knownLinksPath()
   if not fileExists(knownLinksPath):
     return initTable[string, seq[string]](initialSize = 0)
   let table = parsetoml.parseFile(knownLinksPath).tableVal
   let confIds = toSeq(table.values()).deduplicate().map(proc(
       x: TomlValueRef): string = x.getStr())
-  result = initTable[string, seq[string]](initialSize = confIds.len())
+  result = newTable[string, seq[string]](initialSize = confIds.len())
   for confId in confIds:
     var symlinks = newSeq[string]();
     for key, tomlValue in table.pairs:
@@ -81,6 +82,13 @@ proc readKnownLinks(): Table[string, seq[string]] =
         symlinks.add(key)
     result[confId] = symlinks
   return result
+
+proc writeKnownLinks(links: KnownLinks):
+  let knownLinksPath = knownLinksPath()
+  removeFile(knownLinksPath)
+  for confId, symlinks in links.pairs:
+    for symlink in symlinks:
+      insertKnownLinks(symlinks, confId)
 
 proc initConfigIfNeeded() =
   createDir(appDir())
