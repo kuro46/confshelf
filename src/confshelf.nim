@@ -83,13 +83,6 @@ proc readKnownLinks(): KnownLinks =
     result[confId] = symlinks
   return result
 
-proc writeKnownLinks(links: KnownLinks):
-  let knownLinksPath = knownLinksPath()
-  removeFile(knownLinksPath)
-  for confId, symlinks in links.pairs:
-    for symlink in symlinks:
-      insertKnownLinks(symlinks, confId)
-
 proc initConfigIfNeeded() =
   createDir(appDir())
   let confPath = confPath()
@@ -102,6 +95,13 @@ proc insertKnownLink(symlinkPath: string, confId: string) =
   file.write("\"" & symlinkPath.absolutePath() & "\" = \"" & confId & "\"\n")
 
 proc manage(config: ConfigRef, source: string, confId: string) =
+proc writeKnownLinks(links: KnownLinks) =
+  let knownLinksPath = knownLinksPath()
+  removeFile(knownLinksPath)
+  for confId, symlinks in links.pairs:
+    for symlink in symlinks:
+      insertKnownLink(symlink, confId)
+
   debug("Managing source: " & source & " conf-id: " & confId)
   # Check for source
   if not fileExists(source) or symlinkExists(source):
