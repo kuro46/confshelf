@@ -14,11 +14,12 @@ var
   foreignDeps: seq[string]
 
 proc requires(deps: varargs[string]) = discard
-template task(name: untyped; description: string; body: untyped): untyped = discard
-template before(action: untyped, body: untyped): untyped = discard
-template after(action: untyped, body: untyped): untyped = discard
+template task(name: untyped; description: string;
+    body: untyped): untyped = discard
+template before(action: untyped; body: untyped): untyped = discard
+template after(action: untyped; body: untyped): untyped = discard
 template builtin = discard
 proc getPkgDir(): string = discard
 
 include ../confshelf.nimble
-{. hint[XDeclaredButNotUsed]:off .}
+{.hint[XDeclaredButNotUsed]: off.}

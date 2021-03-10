@@ -71,7 +71,8 @@ proc readKnownLinks(): Table[string, seq[string]] =
   if not fileExists(knownLinksPath):
     return initTable[string, seq[string]](initialSize = 0)
   let table = parsetoml.parseFile(knownLinksPath).tableVal
-  let confIds = toSeq(table.values()).deduplicate().map(proc(x: TomlValueRef): string = x.getStr())
+  let confIds = toSeq(table.values()).deduplicate().map(proc(
+      x: TomlValueRef): string = x.getStr())
   result = initTable[string, seq[string]](initialSize = confIds.len())
   for confId in confIds:
     var symlinks = newSeq[string]();
