@@ -37,7 +37,6 @@ type
   Config = object
     configVersion: int
     repositoryPath: string
-  ConfigRef = ref Config
   KnownLinks = Table[string, seq[string]]
   ConfshelfError* = object of CatchableError
   ConfigError* = object of ConfshelfError
@@ -57,7 +56,7 @@ proc pathExists(path: string): bool =
   except OSError:
     return false
 
-proc readConfig(): ConfigRef =
+proc readConfig(): Config =
   let rootTable = parsetoml.parseFile(confPath())
   let configVersion = rootTable["config_version"].getInt()
   let repositoryPath = expandTilde(rootTable["repository_path"].getStr())
@@ -65,7 +64,7 @@ proc readConfig(): ConfigRef =
     raise newException(ConfigError, "'repository_path' is empty! Please edit configuration!")
   if not dirExists(repositoryPath):
     raise newException(ConfigError, "'repository_path' is not a directory!")
-  return ConfigRef(configVersion: configVersion, repositoryPath: repositoryPath)
+  return Config(configVersion: configVersion, repositoryPath: repositoryPath)
 
 proc readKnownLinks(): KnownLinks =
   let knownLinksPath = knownLinksPath()
@@ -74,7 +73,7 @@ proc readKnownLinks(): KnownLinks =
   let table = parsetoml.parseFile(knownLinksPath).tableVal
   let confIds = toSeq(table.values()).deduplicate().map(proc(
       x: TomlValueRef): string = x.getStr())
-  result = newTable[string, seq[string]](initialSize = confIds.len())
+  result = initTable[string, seq[string]](initialSize = confIds.len())
   for confId in confIds:
     var symlinks = newSeq[string]();
     for key, tomlValue in table.pairs:
@@ -94,7 +93,6 @@ proc insertKnownLink(symlinkPath: string, confId: string) =
   defer: close(file)
   file.write("\"" & symlinkPath.absolutePath() & "\" = \"" & confId & "\"\n")
 
-proc manage(config: ConfigRef, source: string, confId: string) =
 proc writeKnownLinks(links: KnownLinks) =
   let knownLinksPath = knownLinksPath()
   removeFile(knownLinksPath)
@@ -102,6 +100,7 @@ proc writeKnownLinks(links: KnownLinks) =
     for symlink in symlinks:
       insertKnownLink(symlink, confId)
 
+proc manage(config: Config, source: string, confId: string) =
   debug("Managing source: " & source & " conf-id: " & confId)
   # Check for source
   if not fileExists(source) or symlinkExists(source):
@@ -117,7 +116,7 @@ proc writeKnownLinks(links: KnownLinks) =
   insertKnownLink(source, confId)
   echo "Success!"
 
-proc link(config: ConfigRef, confId: string, dest: string) =
+proc link(config: Config, confId: string, dest: string) =
   # Check for confId
   if confId.contains(DirSep):
     raise newException(LinkError, "conf-id mustn't include directory separator character!")
@@ -131,10 +130,10 @@ proc link(config: ConfigRef, confId: string, dest: string) =
   insertKnownLink(dest, confId)
   echo "Success!"
 
-proc walkFilesUnderRepo(config: ConfigRef, pattern: string): seq[string] =
+proc walkFilesUnderRepo(config: Config, pattern: string): seq[string] =
   toSeq(walkFiles(config.repository_path / pattern))
 
-proc status(config: ConfigRef) =
+proc status(config: Config) =
   let knownLinks = readKnownLinks()
   for file in walkFilesUnderRepo(config, "*") & walkFilesUnderRepo(config, ".*"):
     let confId = splitPath(file).tail
@@ -163,7 +162,7 @@ proc main() =
   initConfigIfNeeded()
   debug("Reading configuration")
   let config = readConfig()
-  debug("Config: " & $config[])
+  debug("Config: " & $config)
 
   if args["manage"]:
     let source = $args["<source>"]
