@@ -32,6 +32,7 @@ import parsetoml
 import logging
 import tables
 import sequtils
+import strutils
 
 type
   Config = object
@@ -101,7 +102,7 @@ proc writeKnownLinks(links: KnownLinks) =
       insertKnownLink(symlink, confId)
 
 proc manage(config: Config, source: string, confId: string) =
-  debug("Managing source: " & source & " conf-id: " & confId)
+  echo "Managing file: '$#' as config-id: '$#'" % [source, confId]
   # Check for source
   if not fileExists(source) or symlinkExists(source):
     raise newException(ManageError, "source file must be a regular file!")
@@ -117,6 +118,7 @@ proc manage(config: Config, source: string, confId: string) =
   echo "Success!"
 
 proc link(config: Config, confId: string, dest: string) =
+  echo "Linking config: '$#' to dest: '$#'" % [confId, dest]
   # Check for confId
   if confId.contains(DirSep):
     raise newException(LinkError, "conf-id mustn't include directory separator character!")
@@ -134,6 +136,7 @@ proc walkFilesUnderRepo(config: Config, pattern: string): seq[string] =
   toSeq(walkFiles(config.repository_path / pattern))
 
 proc status(config: Config) =
+  echo "Repository: $#" % [config.repository_path]
   let knownLinks = readKnownLinks()
   for file in walkFilesUnderRepo(config, "*") & walkFilesUnderRepo(config, ".*"):
     let confId = splitPath(file).tail
