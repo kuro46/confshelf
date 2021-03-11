@@ -101,8 +101,21 @@ proc writeKnownLinks(links: KnownLinks) =
     for symlink in symlinks:
       insertKnownLink(symlink, confId)
 
-proc manage(config: Config, source: string, confId: string) =
-  echo "Managing file: '$#' as config-id: '$#'" % [source, confId]
+proc deleteKnownLink(symlinkPath: string) =
+  var knownLinks = readKnownLinks()
+  let absoluteSymlinkPath = symlinkPath.absolutePath()
+  for confId, symlinks in knownLinks.mpairs:
+    var idx = -1
+    var found = false
+    for symlink in symlinks:
+      idx = idx + 1
+      if symlink == absoluteSymlinkPath:
+        found = true
+        break
+    if found: symlinks.delete(idx)
+  writeKnownLinks(knownLinks)
+
+proc manage(config: Config, source, confId: string) =
   # Check for source
   if not fileExists(source) or symlinkExists(source):
     raise newException(ManageError, "source file must be a regular file!")
@@ -115,10 +128,8 @@ proc manage(config: Config, source: string, confId: string) =
   moveFile(source, dest)
   createSymlink(dest, source)
   insertKnownLink(source, confId)
-  echo "Success!"
 
 proc link(config: Config, confId: string, dest: string) =
-  echo "Linking config: '$#' to dest: '$#'" % [confId, dest]
   # Check for confId
   if confId.contains(DirSep):
     raise newException(LinkError, "conf-id mustn't include directory separator character!")
@@ -130,7 +141,17 @@ proc link(config: Config, confId: string, dest: string) =
     raise newException(LinkError, "Destination: \"" & dest & "\" already exists!")
   createSymlink(confIdPath, dest)
   insertKnownLink(dest, confId)
-  echo "Success!"
+
+proc unlink(config: Config, symlink: string) =
+  ## Replace ``symlink`` with a file that ``symlink`` pointed to.
+  ## Raises ``ConfshelfError``
+  ## if a path that ``symlink`` pointed to is not starts with ``config.repository_path``
+  let expanded = expandSymlink(symlink)
+  if not expanded.startsWith(config.repository_path):
+    raise newException(ConfshelfError, "'$#' not starts with '$#'" % [expanded, config.repository_path])
+  removeFile(symlink)
+  copyFile(expanded, symlink)
+  deleteKnownLink(symlink)
 
 proc walkFilesUnderRepo(config: Config, pattern: string): seq[string] =
   toSeq(walkFiles(config.repository_path / pattern))
@@ -170,15 +191,21 @@ proc main() =
   if args["manage"]:
     let source = $args["<source>"]
     let confId = $args["<conf-id>"]
+    echo "Managing file: '$#' as config-id: '$#'" % [source, confId]
     manage(config, source, confId)
+    echo "Success!"
   if args["unmanage"]:
     echo "unmanage"
   if args["link"]:
     let confId = $args["<conf-id>"]
     let dest = $args["<dest>"]
+    echo "Linking config: '$#' to dest: '$#'" % [confId, dest]
     link(config, confId, dest)
+    echo "Success!"
   if args["unlink"]:
-    echo "unlink"
+    let symlink = $args["<symlink>"]
+    unlink(config, symlink)
+    echo "Success!"
   if args["status"] or args["s"]:
     status(config)
 
