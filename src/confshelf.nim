@@ -107,6 +107,23 @@ proc unlink(config: Config, symlink: string) =
   copyFile(expanded, symlink)
   deleteKnownLink(symlink)
 
+proc unmanage(config: Config, confId: string) =
+  if confId.contains(DirSep):
+    raise newException(ConfshelfError, "conf-id mustn't contain DirSep")
+  let confIdPath = config.repository_path / confId
+  if not fileExists(confIdPath):
+    raise newException(ConfshelfError, "confIdPath not exists (or its not a file)")
+  let knownLinks = readKnownLinks()
+  if not knownLinks.hasKey(confId):
+    raise newException(ConfshelfError, "No known links exist (Couldn't unmanage it!)")
+  else:
+    let symlinks = knownLinks[confId]
+    for symlink in symlinks:
+      removeFile(symlink)
+      copyFile(confIdPath, symlink)
+      deleteKnownLink(symlink)
+    removeFile(confIdPath)
+
 proc walkFilesUnderRepo(config: Config, pattern: string): seq[string] =
   toSeq(walkFiles(config.repository_path / pattern))
 
@@ -148,19 +165,20 @@ proc main() =
     echo "Managing file: '$#' as config-id: '$#'" % [source, confId]
     manage(config, source, confId)
     echo "Success!"
-  if args["unmanage"]:
-    echo "unmanage"
-  if args["link"]:
+  elif args["unmanage"]:
+    unmanage(config, $args["<conf-id>"])
+    echo "Success!"
+  elif args["link"]:
     let confId = $args["<conf-id>"]
     let dest = $args["<dest>"]
     echo "Linking config: '$#' to dest: '$#'" % [confId, dest]
     link(config, confId, dest)
     echo "Success!"
-  if args["unlink"]:
+  elif args["unlink"]:
     let symlink = $args["<symlink>"]
     unlink(config, symlink)
     echo "Success!"
-  if args["status"] or args["s"]:
+  elif args["status"] or args["s"]:
     status(config)
 
 main()
