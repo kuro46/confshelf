@@ -33,22 +33,17 @@ import logging
 import tables
 import sequtils
 import strutils
+import knownlinks
+import apppaths
 
 type
   Config = object
     configVersion: int
     repositoryPath: string
-  KnownLinks = Table[string, seq[string]]
   ConfshelfError* = object of CatchableError
   ConfigError* = object of ConfshelfError
   ManageError* = object of ConfshelfError
   LinkError* = object of ConfshelfError
-
-proc appDir(): string = expandTilde("~/.confshelf")
-
-proc confPath(): string = appDir() / "config.toml"
-
-proc knownLinksPath(): string = appDir() / "known_links.toml"
 
 proc pathExists(path: string): bool =
   try:
@@ -67,53 +62,11 @@ proc readConfig(): Config =
     raise newException(ConfigError, "'repository_path' is not a directory!")
   return Config(configVersion: configVersion, repositoryPath: repositoryPath)
 
-proc readKnownLinks(): KnownLinks =
-  let knownLinksPath = knownLinksPath()
-  if not fileExists(knownLinksPath):
-    return initTable[string, seq[string]](initialSize = 0)
-  let table = parsetoml.parseFile(knownLinksPath).tableVal
-  let confIds = toSeq(table.values()).deduplicate().map(proc(
-      x: TomlValueRef): string = x.getStr())
-  result = initTable[string, seq[string]](initialSize = confIds.len())
-  for confId in confIds:
-    var symlinks = newSeq[string]();
-    for key, tomlValue in table.pairs:
-      if confId == tomlValue.stringVal:
-        symlinks.add(key)
-    result[confId] = symlinks
-  return result
-
 proc initConfigIfNeeded() =
   createDir(appDir())
   let confPath = confPath()
   if not fileExists(confPath):
     writeFile(confPath, initialConfig)
-
-proc insertKnownLink(symlinkPath: string, confId: string) =
-  let file = open(knownLinksPath(), fmAppend)
-  defer: close(file)
-  file.write("\"" & symlinkPath.absolutePath() & "\" = \"" & confId & "\"\n")
-
-proc writeKnownLinks(links: KnownLinks) =
-  let knownLinksPath = knownLinksPath()
-  removeFile(knownLinksPath)
-  for confId, symlinks in links.pairs:
-    for symlink in symlinks:
-      insertKnownLink(symlink, confId)
-
-proc deleteKnownLink(symlinkPath: string) =
-  var knownLinks = readKnownLinks()
-  let absoluteSymlinkPath = symlinkPath.absolutePath()
-  for confId, symlinks in knownLinks.mpairs:
-    var idx = -1
-    var found = false
-    for symlink in symlinks:
-      idx = idx + 1
-      if symlink == absoluteSymlinkPath:
-        found = true
-        break
-    if found: symlinks.delete(idx)
-  writeKnownLinks(knownLinks)
 
 proc manage(config: Config, source, confId: string) =
   # Check for source
@@ -148,7 +101,8 @@ proc unlink(config: Config, symlink: string) =
   ## if a path that ``symlink`` pointed to is not starts with ``config.repository_path``
   let expanded = expandSymlink(symlink)
   if not expanded.startsWith(config.repository_path):
-    raise newException(ConfshelfError, "'$#' not starts with '$#'" % [expanded, config.repository_path])
+    raise newException(ConfshelfError, "'$#' not starts with '$#'" % [expanded,
+        config.repository_path])
   removeFile(symlink)
   copyFile(expanded, symlink)
   deleteKnownLink(symlink)
