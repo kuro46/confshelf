@@ -7,16 +7,16 @@ import sequtils
 import apppaths
 
 type
-  KnownLinks* = Table[string, seq[string]]
+  KnownLinks* = TableRef[string, seq[string]]
 
 proc readKnownLinks*(): KnownLinks =
   let knownLinksPath = knownLinksPath()
   if not fileExists(knownLinksPath):
-    return initTable[string, seq[string]](initialSize = 0)
+    return newTable[string, seq[string]](initialSize = 0)
   let table = parsetoml.parseFile(knownLinksPath).tableVal
   let confIds = toSeq(table.values()).deduplicate().map(proc(
       x: TomlValueRef): string = x.getStr())
-  result = initTable[string, seq[string]](initialSize = confIds.len())
+  result = newTable[string, seq[string]](initialSize = confIds.len())
   for confId in confIds:
     var symlinks = newSeq[string]();
     for key, tomlValue in table.pairs:
