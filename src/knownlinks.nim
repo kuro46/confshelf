@@ -21,8 +21,8 @@ proc readKnownLinks*(): KnownLinks =
     var symlinks = newSeq[string]();
     for key, tomlValue in table.pairs:
       if confId == tomlValue.stringVal:
-        symlinks.add(key)
-    result[confId] = symlinks
+        symlinks.add(key.absolutePath())
+    result[confId] = symlinks.deduplicate()
   return result
 
 proc insertKnownLink*(symlinkPath: string, confId: string) =
@@ -41,12 +41,6 @@ proc deleteKnownLink*(symlinkPath: string) =
   var knownLinks = readKnownLinks()
   let absoluteSymlinkPath = symlinkPath.absolutePath()
   for confId, symlinks in knownLinks.mpairs:
-    var idx = -1
-    var found = false
-    for symlink in symlinks:
-      idx = idx + 1
-      if symlink == absoluteSymlinkPath:
-        found = true
-        break
-    if found: symlinks.delete(idx)
+    var idx = symlinks.find(absoluteSymlinkPath)
+    if idx != -1: symlinks.delete(idx)
   writeKnownLinks(knownLinks)
