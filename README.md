@@ -4,7 +4,36 @@ confshelf is a simple tool for manage setting files (Can use as dotfiles manager
 
 Tested on FreeBSD 12.2-RELEASE-p3
 
+## Download pre-built binary
+
+### FreeBSD
+
+```
+curl -Lo confshelf https://github.com/kuro46/confshelf/releases/download/v0.1.0/confshelf-freebsd-x86_64
+chmod +x confshelf
+```
+
+### Linux
+
+```
+curl -Lo confshelf https://github.com/kuro46/confshelf/releases/download/v0.1.0/confshelf-linux-x86_64
+chmod +x confshelf
+```
+
+Then, place downloaded binary into `$PATH`
+
 ## Commands
+
+```
+$ confshelf -h
+confshelf [--debug] manage <source> <conf-id>
+confshelf [--debug] unmanage <conf-id>
+confshelf [--debug] link <conf-id> <dest>
+confshelf [--debug] unlink <symlink>
+confshelf [--debug] (s | status)
+confshelf (-h | --help)
+confshelf (-v | --version)
+```
 
 ### `confshelf manage <source> <conf-id>`
 
