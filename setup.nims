@@ -72,5 +72,5 @@ proc link(symlink, confId: string) =
   exec "ln -fs $# $#" % [confPath, expandedSymlink]
   echo "  Created symlink '$#' points to '$#'" % [symlink, confPath]
 # Load links
-include ./links.nims
+include ./links.conf
 
