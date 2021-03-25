@@ -38,7 +38,7 @@ if hasParam("--create-config"):
 #link "~/just_a_link", "foo"
 #
 # Then, you can execute `./setup.nims` to create symbolic links based on this configuration file.
-# NOTE: If you just updated this configuration file, 
+# NOTE: If you just added an entry to this configuration file, 
 #       It is useful to execute `./setup.nims` with `--no-overwrite` flag.
 #       For more details, execute setup script with `--help` flag.
 
