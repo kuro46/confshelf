@@ -13,9 +13,9 @@ Install Nim if you haven't installed yet. ([Nim Install Instruction](https://nim
 ```sh
 mkdir dotfiles
 cd dotfiles
-wget -O setup.nims https://raw.githubusercontent.com/kuro46/confshelf/master/setup.nims
+wget -O setup.nims https://raw.githubusercontent.com/kuro46/confshelf/main/setup.nims
 # In curl:
-#curl -Lo setup.nims https://raw.githubusercontent.com/kuro46/confshelf/master/setup.nims
+#curl -Lo setup.nims https://raw.githubusercontent.com/kuro46/confshelf/main/setup.nims
 chmod +x ./setup.nims
 ./setup.nims --create-config
 ```
