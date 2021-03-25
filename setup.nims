@@ -18,7 +18,18 @@ if hasParam("-h", "--help"):
   echo "--no-overwrite | -n : Don't overwrite file/symlinks that already exist"
   echo "                      This is useful when you want to generate absent symlinks"
   echo "                      NOTE: This won't remove symlinks that absented from links.nims"
-  echo "--check-update      : Check update of this script(NOT IMPLEMENTED)"
+  echo "--update            : Download latest script to ./setup.nims"
+  quit(0)
+
+if hasParam("--update"):
+  echo "Downloading latest script from https://raw.githubusercontent.com/kuro46/confshelf/main/setup.nims"
+  let (output, exit) = gorgeEx "https://raw.githubusercontent.com/kuro46/confshelf/main/setup.nims"
+  if exit != 0:
+    echo output
+    echo ""
+    echo "Execution failed."
+    quit(1)
+  echo "Downloaded!"
   quit(0)
 
 if hasParam("--create-config"):
