@@ -68,7 +68,7 @@ proc link(symlink, confId: string) =
   if not fileExists(confPath):
     echo "  Configuration '$#' doesn't exist. Did nothing." % confId
     return
-  exec "mkdir -p $#" % (expandedSymlink /../)
+  exec "mkdir -p $#" % (expandedSymlink /../ "")
   exec "ln -fs $# $#" % [confPath, expandedSymlink]
   echo "  Created symlink '$#' points to '$#'" % [symlink, confPath]
 # Load links
