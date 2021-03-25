@@ -64,7 +64,7 @@ proc link(symlink, confId: string) =
     if userInput != "yes":
       echo "  Did nothing."
       return
-  let confPath = thisDir() / confId
+  let confPath = getCurrentDir() / confId
   if not fileExists(confPath):
     echo "  Configuration '$#' doesn't exist. Did nothing." % confId
     return
