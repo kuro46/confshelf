@@ -23,7 +23,7 @@ if hasParam("-h", "--help"):
 
 if hasParam("--update"):
   echo "Downloading latest script from https://raw.githubusercontent.com/kuro46/confshelf/main/setup.nims"
-  let (output, exit) = gorgeEx "https://raw.githubusercontent.com/kuro46/confshelf/main/setup.nims"
+  let (output, exit) = gorgeEx "wget -O setup.nims https://raw.githubusercontent.com/kuro46/confshelf/main/setup.nims"
   if exit != 0:
     echo output
     echo ""
