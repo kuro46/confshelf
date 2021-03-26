@@ -65,6 +65,7 @@ proc link(symlink, confId: string) =
   let expandedSymlink = expandTilde(symlink)
   if dirExists(expandedSymlink):
     echo "'$#' is a directory." % expandedSymlink
+    return
   if fileExists(expandedSymlink):
     if noOverwrite:
       echo "  '$#' already exists and '--no-overwrite' flag is set. Did nothing." % symlink
