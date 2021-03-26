@@ -99,31 +99,28 @@ proc getFileType(file: string): FileType =
 proc link(symlink, confId: string) =
   echo "Creating a symlink '$#' which points to '$#'" % [symlink, confId]
   let expandedSymlink = expandTilde(symlink)
-  if dirExists(expandedSymlink):
-    echo "'$#' is a directory." % expandedSymlink
-    return
   let symlinkFileType = getFileType(expandedSymlink)
   if symlinkFileType == FileType.RegularFile:
     if noOverwrite:
-      echo "  SKIPPED because '$#' already exists and '--no-overwrite' flag is set. Did nothing." % symlink
+      echo "  ...Skipped because '$#' already exists and '--no-overwrite' flag is set. Did nothing." % symlink
       return
-    echo "  QUESTION '$#' already exists. Do you want to overwrite? " % symlink &
+    echo "  Do you want to overwrite? '$#' already exists. " % symlink &
       "(Please type 'Yes' and [Enter] if you want to do)"
     let userInput = readLineFromStdin().toLowerAscii()
     if userInput != "yes":
-      echo "  SKIPPED"
+      echo "  ...Skipped"
       return
   elif symlinkFileType == FileType.Unknown or symlinkFileType == FileType.Directory:
-    echo "  SKIPPED because filetype of '$#' is $#" % [symlink, $symlinkFileType]
+    echo "  ...Skipped because filetype of '$#' is $#" % [symlink, $symlinkFileType]
     return
   # symlinkFileType is RegularFile or SymbolicLink
   let confPath = getCurrentDir() / confId
   if not fileExists(confPath):
-    echo "  SKIPPED because configuration '$#' doesn't exist. Did nothing." % confId
+    echo "  ...Skipped because configuration '$#' doesn't exist. Did nothing." % confId
     return
   exec "mkdir -p $#" % (expandedSymlink /../ "")
   exec "ln -fs $# $#" % [confPath, expandedSymlink]
-  echo "  CREATED symlink '$#' which points to '$#'" % [symlink, confId]
+  echo "  ...Created!"
 # Load links
 include ./links.conf
 #echo $getFileType("~")
