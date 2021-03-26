@@ -70,7 +70,7 @@ type FileType = enum
 
 proc getFileType(file: string): FileType =
   if detectOs(FreeBSD):
-    let (output, exitCode) = gorgeEx "stat -f=%T " & file
+    let (output, exitCode) = gorgeEx "stat -f %T " & file
     if exitCode == 1:
       return FileType.NotExists
     case output
