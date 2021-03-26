@@ -6,6 +6,7 @@
 import tables
 import strutils
 import os
+import distros
 
 proc hasParam(params: varargs[string]): bool =
   for param in params:
@@ -60,13 +61,49 @@ if hasParam("--create-config"):
 
 let noOverwrite = hasParam("-n", "--no-overwrite")
 
+type FileType = enum
+  SymbolicLink
+  RegularFile
+  Directory
+  Unknown
+  NotExists ## Usually if stat returned 1
+
+proc getFileType(file: string): FileType =
+  if detectOs(FreeBSD):
+    let (output, exitCode) = gorgeEx "stat -f=%T " & file
+    if exitCode == 1:
+      return FileType.NotExists
+    case output
+    of "":
+      return FileType.RegularFile
+    of "/":
+      return FileType.Directory
+    of "@":
+      return FileType.SymbolicLink
+    else:
+      return FileType.Unknown
+  else:
+    let (output, exitCode) = gorgeEx "stat --format=%F " & file
+    if exitCode == 1:
+      return FileType.NotExists
+    case output
+    of "regular file":
+      return FileType.RegularFile
+    of "symbolic link":
+      return FileType.SymbolicLink
+    of "directory":
+      return FileType.Directory
+    else:
+      return FileType.Unknown
+
 proc link(symlink, confId: string) =
   echo "Creating a symlink '$#' which points to '$#'" % [symlink, confId]
   let expandedSymlink = expandTilde(symlink)
   if dirExists(expandedSymlink):
     echo "'$#' is a directory." % expandedSymlink
     return
-  if not symlinkExists(expandedSymlink) and fileExists(expandedSymlink):
+  let symlinkFileType = getFileType(expandedSymlink)
+  if symlinkFileType == FileType.RegularFile:
     if noOverwrite:
       echo "  SKIPPED because '$#' already exists and '--no-overwrite' flag is set. Did nothing." % symlink
       return
@@ -76,6 +113,10 @@ proc link(symlink, confId: string) =
     if userInput != "yes":
       echo "  SKIPPED"
       return
+  elif symlinkFileType == FileType.Unknown or symlinkFileType == FileType.Directory:
+    echo "  SKIPPED because filetype of '$#' is $#" % [symlink, $symlinkFileType]
+    return
+  # symlinkFileType is RegularFile or SymbolicLink
   let confPath = getCurrentDir() / confId
   if not fileExists(confPath):
     echo "  SKIPPED because configuration '$#' doesn't exist. Did nothing." % confId
@@ -85,4 +126,6 @@ proc link(symlink, confId: string) =
   echo "  CREATED symlink '$#' points to '$#'" % [symlink, confPath]
 # Load links
 include ./links.conf
-
+#echo $getFileType("~")
+#echo $getFileType("~/.vimrc")
+#echo $getFileType("~/.ssh/config")
