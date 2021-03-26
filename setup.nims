@@ -68,21 +68,21 @@ proc link(symlink, confId: string) =
     return
   if not symlinkExists(expandedSymlink) and fileExists(expandedSymlink):
     if noOverwrite:
-      echo "  '$#' already exists and '--no-overwrite' flag is set. Did nothing." % symlink
+      echo "  SKIPPED because '$#' already exists and '--no-overwrite' flag is set. Did nothing." % symlink
       return
-    echo "- '$#' already exists. Do you want to overwrite? " % symlink &
+    echo "  '$#' already exists. Do you want to overwrite? " % symlink &
       "(Please type 'Yes' and [Enter] if you want to do)"
     let userInput = readLineFromStdin().toLowerAscii()
     if userInput != "yes":
-      echo "  Did nothing."
+      echo "  SKIPPED"
       return
   let confPath = getCurrentDir() / confId
   if not fileExists(confPath):
-    echo "  Configuration '$#' doesn't exist. Did nothing." % confId
+    echo "  SKIPPED because configuration '$#' doesn't exist. Did nothing." % confId
     return
   exec "mkdir -p $#" % (expandedSymlink /../ "")
   exec "ln -fs $# $#" % [confPath, expandedSymlink]
-  echo "  Created symlink '$#' points to '$#'" % [symlink, confPath]
+  echo "  CREATED symlink '$#' points to '$#'" % [symlink, confPath]
 # Load links
 include ./links.conf
 
