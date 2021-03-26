@@ -15,9 +15,9 @@ proc hasParam(params: varargs[string]): bool =
 if hasParam("-h", "--help"):
   echo "--help | -h         : Show this message"
   echo "--create-config     : Generate configration file with some instructions"
-  echo "--no-overwrite | -n : Don't overwrite file/symlinks that already exist"
-  echo "                      This is useful when you want to generate absent symlinks"
-  echo "                      NOTE: This won't remove symlinks that absented from links.nims"
+  echo "--no-overwrite | -n : Don't overwrite regular file without confirmation"
+  echo "                      This is useful when you want to generate absent symlinks or update symlink"
+  echo "                      NOTE: Symbolic links will be overwritten even if this flag is set"
   echo "--update            : Download latest script to ./setup.nims"
   quit(0)
 
@@ -66,7 +66,7 @@ proc link(symlink, confId: string) =
   if dirExists(expandedSymlink):
     echo "'$#' is a directory." % expandedSymlink
     return
-  if fileExists(expandedSymlink):
+  if not symlinkExists(expandedSymlink) and fileExists(expandedSymlink):
     if noOverwrite:
       echo "  '$#' already exists and '--no-overwrite' flag is set. Did nothing." % symlink
       return
