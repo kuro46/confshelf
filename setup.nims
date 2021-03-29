@@ -105,9 +105,9 @@ proc link(symlink, confId: string) =
       echo "  ...Skipped because '$#' already exists and '--no-overwrite' flag is set. Did nothing." % symlink
       return
     echo "  Do you want to overwrite? '$#' already exists. " % symlink &
-      "(Please type 'Yes' and [Enter] if you want to do)"
+      "(Please type 'y' and [Enter] if you want to do)"
     let userInput = readLineFromStdin().toLowerAscii()
-    if userInput != "yes":
+    if userInput != "y":
       echo "  ...Skipped"
       return
   elif symlinkFileType == FileType.Unknown or symlinkFileType == FileType.Directory:
