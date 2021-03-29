@@ -33,16 +33,18 @@ if hasParam("--update"):
   echo "Downloaded!"
   quit(0)
 
-if hasParam("--create-config"):
-  if fileExists("./links.conf"):
-    echo "./links.conf already exists. Did nothing."
+if hasParam("--init"):
+  if fileExists("./setup.nims"):
+    echo "./setup.nims already exists. Did nothing."
     quit(0)
   let header = """
-# This is script-like configuration file for describe file mappings.
+# This is a setup script for confshelf.
+# You can write anything here using NimScript syntax.
 #
 # There is 'link' function for describe file mapping.
 # First argument for 'link' is a path of symlink.
 # Second argument for 'link' is a relative path form repository.
+# (You can view confshelf.nims for more details)
 #
 # For example, If repository is '~/dotfiles' and you want to create symbolic link in
 # '~/just_a_symlink' that points to '~/dotfiles/foo', you should add line like below.
@@ -55,8 +57,8 @@ if hasParam("--create-config"):
 #       For more details, execute setup script with `--help` flag.
 
 """
-  writeFile("./links.conf", header)
-  echo "./links.conf created."
+  writeFile("./setup.nims", header)
+  echo "./setup.nims created."
   quit(0)
 
 let noOverwrite = hasParam("-n", "--no-overwrite")
@@ -97,6 +99,8 @@ proc getFileType(file: string): FileType =
       return FileType.Unknown
 
 proc link(symlink, confId: string) =
+  ## confId is a relative path to configuration file from current directory.
+  ## symlink is a path to symbolic link.
   echo "Creating a symlink '$#' which points to '$#'" % [symlink, confId]
   let expandedSymlink = expandTilde(symlink)
   let symlinkFileType = getFileType(expandedSymlink)
@@ -125,7 +129,7 @@ proc link(symlink, confId: string) =
   else:
     echo "  ...Symlink updated!"
 # Load links
-include ./links.conf
+include ./setup.nims
 #echo $getFileType("~")
 #echo $getFileType("~/.vimrc")
 #echo $getFileType("~/.ssh/config")
