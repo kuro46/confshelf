@@ -19,12 +19,12 @@ if hasParam("-h", "--help"):
   echo "--no-overwrite | -n : Don't overwrite regular file without confirmation"
   echo "                      This is useful when you want to generate absent symlinks or update symlink"
   echo "                      NOTE: Symbolic links will be overwritten even if this flag is set"
-  echo "--update            : Download latest script to ./setup.nims"
+  echo "--update            : Download latest script to ./confshelf.nims"
   quit(0)
 
 if hasParam("--update"):
-  echo "Downloading latest script from https://raw.githubusercontent.com/kuro46/confshelf/main/setup.nims"
-  let (output, exit) = gorgeEx "wget -O setup.nims https://raw.githubusercontent.com/kuro46/confshelf/main/setup.nims"
+  echo "Downloading latest script from https://raw.githubusercontent.com/kuro46/confshelf/main/confshelf.nims"
+  let (output, exit) = gorgeEx "wget -O confshelf.nims https://raw.githubusercontent.com/kuro46/confshelf/main/confshelf.nims"
   if exit != 0:
     echo output
     echo ""
@@ -49,9 +49,9 @@ if hasParam("--create-config"):
 #
 #link "~/just_a_link", "foo"
 #
-# Then, you can execute `./setup.nims` to create symbolic links based on this configuration file.
+# Then, you can execute `./confshelf.nims` to create symbolic links based on this configuration file.
 # NOTE: If you just added an entry to this configuration file, 
-#       It is useful to execute `./setup.nims` with `--no-overwrite` flag.
+#       It is useful to execute `./confshelf.nims` with `--no-overwrite` flag.
 #       For more details, execute setup script with `--help` flag.
 
 """
