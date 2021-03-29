@@ -124,10 +124,10 @@ proc link(symlink, confId: string) =
     return
   exec "mkdir -p $#" % (expandedSymlink /../ "")
   exec "ln -fs $# $#" % [confPath, expandedSymlink]
-  if symlinkFileType == FileType.NotExists:
-    echo "  ...Created!"
-  else:
+  if symlinkFileType == FileType.SymbolicLink:
     echo "  ...Symlink updated!"
+  else:
+    echo "  ...Created!"
 # Load links
 include ./setup.nims
 #echo $getFileType("~")
