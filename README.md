@@ -1,6 +1,6 @@
 # confshelf
 
-confshelf is a just helper for managing dotfiles.
+confshelf is a helper for managing dotfiles.
 
 ## Requirements
 
