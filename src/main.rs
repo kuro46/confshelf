@@ -9,6 +9,8 @@ use std::os::unix;
 use std::path::{Path, PathBuf};
 use serde::{Serialize, Deserialize};
 
+const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 || args[1] == "help" {
@@ -28,7 +30,7 @@ fn main() {
 }
 
 fn version() {
-    todo!()
+    println!("confshelf v{}", VERSION);
 }
 
 fn selfupdate() {
