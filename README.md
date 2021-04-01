@@ -6,3 +6,11 @@ confshelf is a helper for managing configuration files (aka dotfiles).
 
 - Unix like OSes (Linux, FreeBSD, etc...)
 
+## Installation
+
+TODO
+
+## Usage
+
+TODO
+
