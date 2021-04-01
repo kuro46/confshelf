@@ -1,0 +1,11 @@
+# Optional field for execute additional script on setup. 
+# For example, if you may want to execute `chmod` for change filemode.
+script_on_setup = "./additional_script.sh"
+[[links]]
+# Destination of symbolic link
+symlink = "~/.vimrc"
+# Relative path from PWD
+target = "./.vimrc"
+[[links]]
+symlink = "~/.tmux.conf"
+target = "./.tmux.conf"
