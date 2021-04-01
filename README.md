@@ -2,7 +2,7 @@
 
 confshelf is a helper for managing configuration files (aka dotfiles).
 
-## Requirements
+## Supported OSes
 
-- Unix
+- Unix like OSes (Linux, FreeBSD, etc...)
 
